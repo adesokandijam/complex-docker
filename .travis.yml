@@ -1,0 +1,22 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - docker build -t dijamonthabeatz/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run dijamonthabeatz/react-test npm test -- --coverage
+
+after_success:
+  - docker buiild -t dijamonthabeatz/multi-client ./cliemt
+  - docker buiild -t dijamonthabeatz/multi-nginx ./nginx
+  - docker buiild -t dijamonthabeatz/multi-server ./server
+  - docker buiild -t dijamonthabeatz/multi-worker ./worker
+  - echo "$DOCKER_PASSWORD" | docker login -u "DOCKER_ID" -- password-stdin
+  - docker push dijamonthabeatz/multi-client 
+  - docker push -t dijamonthabeatz/multi-nginx 
+  - docker push -t dijamonthabeatz/multi-server 
+  - docker push -t dijamonthabeatz/multi-worker 
+
